@@ -2,50 +2,105 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SYSTEM CRITICAL - DO NOT CLOSE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>System Update</title>
     <style>
-        body { background: #000; color: #f00; font-family: 'Courier', monospace; overflow: hidden; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; cursor: crosshair; }
-        #trap-overlay { text-align: center; z-index: 100; }
-        iframe { width: 100vw; height: 100vh; border: none; display: none; }
-        .blink { animation: blinker 0.1s step-start infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
-    </style>
-</head>
-<body>
-
-    <div id="trap-overlay" onclick="engageTrap()">
-        <h1 class="blink">CRITICAL BREACH DETECTED</h1>
-        <p>RECOVERY KEY REQUIRED: [CLICK TO INITIALIZE]</p>
-    </div>
-
-    <iframe id="rick" src="" allow="autoplay; encrypted-media"></iframe>
-
-    <script>
-        function engageTrap() {
-            // 1. Go Fullscreen (The ultimate trap)
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) { elem.requestFullscreen(); }
-
-            // 2. Hide UI and Show Rick
-            document.getElementById('trap-overlay').style.display = 'none';
-            const rick = document.getElementById('rick');
-            rick.style.display = 'block';
-            rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&loop=1&playlist=dQw4w9WgXcQ&controls=0";
-
-            // 3. Flood History
-            for (let i = 0; i < 50; i++) {
-                window.history.pushState(null, "", window.location.href);
-            }
-
-            // 4. Block Exit Attempt
-            window.addEventListener('beforeunload', (e) => {
-                e.preventDefault();
-                e.returnValue = '';
-            });
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica;
         }
 
-        // Prevent Right Click
-        document.addEventListener('contextmenu', event => event.preventDefault());
+        /* The Fake Interface */
+        #fake-os {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* High-tech HUD Overlay */
+        #hud {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none; z-index: 101;
+        }
+
+        .status-msg {
+            color: white; background: rgba(0,0,0,0.7); padding: 20px;
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.3);
+            text-align: center; backdrop-filter: blur(10px);
+        }
+
+        #rick-container {
+            display: none; width: 100vw; height: 100vh; background: #000;
+        }
+
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="hud"></div>
+
+    <div id="fake-os" onclick="initiateLockdown()">
+        <div class="status-msg">
+            <h2 id="device-text">SYSTEM UPDATE REQUIRED</h2>
+            <p>Tap to initialize security patch...</p>
+        </div>
+    </div>
+
+    <div id="rick-container">
+        <iframe id="player" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        const deviceText = document.getElementById('device-text');
+        const fakeOS = document.getElementById('fake-os');
+        const ua = navigator.userAgent;
+
+        // 1. Detection Logic
+        if (/iPad|Macintosh/.test(ua) && 'ontouchend' in document) {
+            deviceText.innerText = "iPadOS CALIBRATION REQUIRED";
+            fakeOS.style.backgroundImage = "url('https://wallpapers.com/images/featured/ipad-o86p627zt828646s.jpg')"; // Fake iPad wallpaper
+        } else if (/iPhone/.test(ua)) {
+            deviceText.innerText = "iOS KERNEL PANIC";
+            fakeOS.style.backgroundImage = "url('https://w0.peakpx.com/wallpaper/932/342/HD-wallpaper-ios-15-original-apple-iphone-official-stock.jpg')";
+        } else {
+            deviceText.innerText = "WINDOWS CRITICAL BREACH";
+            fakeOS.style.background = "#0078d7"; // Blue Screen of Death color
+        }
+
+        function initiateLockdown() {
+            // 2. Request Fullscreen (Makes the browser UI vanish)
+            const doc = document.documentElement;
+            if (doc.requestFullscreen) doc.requestFullscreen();
+            else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+
+            // 3. Visual Transition (The "Sucked In" effect)
+            fakeOS.style.transform = "scale(1.2)";
+            fakeOS.style.opacity = "0";
+            
+            setTimeout(() => {
+                fakeOS.style.display = 'none';
+                const container = document.getElementById('rick-container');
+                container.style.display = 'block';
+                
+                // 4. The Loop
+                const player = document.getElementById('player');
+                player.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&loop=1&playlist=dQw4w9WgXcQ&disablekb=1";
+            }, 500);
+
+            // 5. History Manipulation
+            for(let i=0; i<100; i++) {
+                window.history.pushState(null, "", window.location.href + "#sys_lock_" + i);
+            }
+        }
+
+        // Prevent back-button escape
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+            alert("SYSTEM LOCK ACTIVE: COMPONENT FAILURE");
+        };
     </script>
 </body>
 </html>
