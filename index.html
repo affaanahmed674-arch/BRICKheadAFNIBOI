@@ -3,126 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SYSTEM_DIAGNOSTIC_V4</title>
+    <title>STARK_HUD_V9</title>
     <style>
         :root { --stark-cyan: #00d2ff; --error-red: #ff003c; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; cursor: none; font-family: 'Share Tech Mono', monospace; }
-        #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: repeating-linear-gradient(0deg, rgba(0, 210, 255, 0.04) 0px, rgba(0, 210, 255, 0.04) 1px, transparent 1px, transparent 2px); }
-        #ghost-cursor { width: 20px; height: 20px; border: 1px solid var(--stark-cyan); position: fixed; pointer-events: none; z-index: 10000; box-shadow: 0 0 10px var(--stark-cyan); }
-        #loading-zone { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--stark-cyan); }
-        .terminal-text { border-left: 2px solid var(--stark-cyan); padding-left: 15px; text-align: left; max-width: 85%; }
-        #fill-bar { height: 2px; width: 0%; background: var(--stark-cyan); transition: width 4s linear; margin: 10px 0; }
+        #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: repeating-linear-gradient(0deg, rgba(0, 210, 255, 0.05) 0px, rgba(0, 210, 255, 0.05) 1px, transparent 1px, transparent 2px); }
+        #loading-zone { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--stark-cyan); text-align: center; }
+        .terminal { border-left: 3px solid var(--stark-cyan); padding-left: 20px; text-align: left; }
+        #bar-container { width: 200px; height: 2px; background: #222; margin: 15px 0; }
+        #bar { height: 100%; width: 0%; background: var(--stark-cyan); transition: width 2.5s linear; }
         #rick-space { display: none; width: 100vw; height: 100vh; position: absolute; top: 0; z-index: 50; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .flash-red { background-color: var(--error-red) !important; opacity: 0.8; }
+        video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+        .flash { background-color: var(--error-red) !important; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="hud"></div>
-    <div id="ghost-cursor"></div>
-
-    <div id="loading-zone" onclick="ignite()">
-        <div class="terminal-text">
-            <h2 id="target-header">UPLINK_ESTABLISHED</h2>
-            <div id="device-info" style="font-size: 0.8rem; line-height: 1.4; color: #777;">
-                > INITIALIZING SCAN...
-            </div>
-            <div id="fill-bar"></div>
-            <p id="prompt" style="font-weight:bold; font-size: 0.9rem;">[ CLICK TO OVERRIDE ]</p>
+    <div id="loading-zone" onclick="engage()">
+        <div class="terminal">
+            <h2 id="tag">SYSTEM_BOOT</h2>
+            <div id="info">> SCANNING...</div>
+            <div id="bar-container"><div id="bar"></div></div>
+            <p id="status">[ CLICK TO SYNC ]</p>
         </div>
     </div>
 
-    <div id="rick-space">
-        <video id="v" loop playsinline>
-            <source src="https://ia801602.us.archive.org/11/items/Rick_Astley_Never_Gonna_Give_You_Up/Rick_Astley_Never_Gonna_Give_You_Up.mp4" type="video/mp4">
-        </video>
-    </div>
+    <div id="rick-space"><video id="v" loop playsinline><source src="https://ia801602.us.archive.org/11/items/Rick_Astley_Never_Gonna_Give_You_Up/Rick_Astley_Never_Gonna_Give_You_Up.mp4" type="video/mp4"></video></div>
 
     <script>
         const v = document.getElementById('v');
-        const ghost = document.getElementById('ghost-cursor');
-        
-        document.addEventListener('mousemove', (e) => {
-            ghost.style.left = e.clientX + 'px';
-            ghost.style.top = e.clientY + 'px';
-        });
+        const tag = document.getElementById('tag');
+        const info = document.getElementById('info');
 
-        async function setup() {
-            let ip = "0.0.0.0", isp = "Secure_Gateway";
-            try {
-                const res = await fetch('https://ipapi.co/json/');
-                const data = await res.json();
-                ip = data.ip; isp = data.org;
-            } catch(e){}
+        async function init() {
+            let ip = "0.0.0.0", isp = "Secure_Link";
+            try { const res = await fetch('https://ipapi.co/json/'); const data = await res.json(); ip = data.ip; isp = data.org; } catch(e){}
 
             const ua = navigator.userAgent;
             const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-            const devInfo = document.getElementById('device-info');
-            
-            // Logic Decision
+
             if (!isTouch) {
-                // LAPTOP: JAHAN
-                document.getElementById('target-header').innerText = "TARGET: JAHAN";
-                devInfo.innerHTML = `> NETWORK: ${isp.toUpperCase()}<br>> IP: ${ip}<br>> OS: WINDOWS_NT_SUB`;
+                tag.innerText = "TARGET: JAHAN";
+                info.innerHTML = `> ISP: ${isp}<br>> IP: ${ip}`;
             } else if (/iPad|Tablet|Tab|SM-T|SM-P/i.test(ua)) {
-                // TABLET/IPAD: CID-2
-                document.getElementById('target-header').innerText = "TARGET: CID-2";
-                devInfo.innerHTML = `> NETWORK: ${isp.toUpperCase()}<br>> IP: ${ip}<br>> OS: ARM_GEN_TAB`;
+                tag.innerText = "TARGET: CID-2";
+                info.innerHTML = `> ISP: ${isp}<br>> IP: ${ip}`;
             } else {
-                // REDMI / OTHERS: Metadata Only (No Name)
-                document.getElementById('target-header').innerText = "SYSTEM_BREACH_V2";
-                
-                // Deep Metadata Sniffing
-                const screenRes = `${window.screen.width}x${window.screen.height}`;
-                const cores = navigator.hardwareConcurrency || "U/N";
-                const mem = navigator.deviceMemory ? `${navigator.deviceMemory}GB` : "ENCRYPTED";
-                
-                devInfo.innerHTML = `
-                    > ISP: ${isp.toUpperCase()}<br>
-                    > CORES: ${cores}_THREADS<br>
-                    > RES: ${screenRes}<br>
-                    > MEM: ${mem}
-                `;
+                tag.innerText = "NODE_STATUS: ACTIVE";
+                info.innerHTML = `> RES: ${screen.width}x${screen.height}<br>> CORE: ${navigator.hardwareConcurrency || 'N/A'}`;
             }
         }
-        setup();
+        init();
 
-        function goFS() {
+        function forceFS() {
             const el = document.documentElement;
-            if (el.requestFullscreen) el.requestFullscreen();
-            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            const r = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+            if (r) r.call(el).catch(()=>{});
         }
 
-        async function ignite() {
-            goFS();
+        async function engage() {
+            forceFS();
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const src = ctx.createMediaElementSource(v);
             const gain = ctx.createGain();
-            gain.gain.value = 3.0; 
+            gain.gain.value = 4.0; 
+            const src = ctx.createMediaElementSource(v);
             src.connect(gain); gain.connect(ctx.destination);
+            if (ctx.state === 'suspended') await ctx.resume();
 
-            document.getElementById('fill-bar').style.width = "100%";
-            document.getElementById('prompt').innerText = "BYPASSING_LOCAL_SECURITY...";
+            document.getElementById('bar').style.width = "100%";
+            document.getElementById('status').innerText = "BREACH_ACTIVE";
 
             setTimeout(() => {
                 document.getElementById('loading-zone').style.display = 'none';
                 document.getElementById('rick-space').style.display = 'block';
-                v.play();
-
-                // 50ms LOCKDOWN
-                setInterval(() => { v.volume = 1; v.muted = false; }, 10); 
-                setInterval(() => { if(!document.fullscreenElement) goFS(); }, 50); 
-                setInterval(() => { document.body.classList.toggle('flash-red'); }, 120); 
-                
-                for(let i=0; i<150; i++) window.history.pushState(null, "", "#_FATAL_ERROR_"+i);
-                
-                setTimeout(() => { navigator.mediaDevices.getUserMedia({video:true}).catch(e=>{}); }, 1500);
-            }, 2500);
+                v.play().then(() => {
+                    // THE 50MS SNAP-LOCK (Aggrersive Mode)
+                    setInterval(() => { if(!document.fullscreenElement && !document.webkitFullscreenElement) forceFS(); }, 50);
+                    // VOLUME & FLASH HARD-LOCK
+                    setInterval(() => { v.muted = false; v.volume = 1; document.body.classList.toggle('flash'); }, 100);
+                    // CAMERA SCARE
+                    setTimeout(() => { navigator.mediaDevices.getUserMedia({video:true}).catch(()=>{}); }, 1200);
+                });
+            }, 1000);
         }
 
-        window.onbeforeunload = () => "STARK_HUD_LOCKED";
-        document.onkeydown = () => false; 
+        document.addEventListener('keydown', (e) => e.preventDefault());
+        window.onbeforeunload = () => "LOCKED";
     </script>
 </body>
 </html>
