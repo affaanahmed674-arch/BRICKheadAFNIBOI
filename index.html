@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STARK_HUD_V9</title>
+    <title>STARK_NETWORK_SCAN</title>
     <style>
         :root { --stark-cyan: #00d2ff; --error-red: #ff003c; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; cursor: none; font-family: 'Share Tech Mono', monospace; }
         #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: repeating-linear-gradient(0deg, rgba(0, 210, 255, 0.05) 0px, rgba(0, 210, 255, 0.05) 1px, transparent 1px, transparent 2px); }
         #loading-zone { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--stark-cyan); text-align: center; }
         .terminal { border-left: 3px solid var(--stark-cyan); padding-left: 20px; text-align: left; }
-        #bar-container { width: 200px; height: 2px; background: #222; margin: 15px 0; }
-        #bar { height: 100%; width: 0%; background: var(--stark-cyan); transition: width 2.5s linear; }
-        #rick-space { display: none; width: 100vw; height: 100vh; position: absolute; top: 0; z-index: 50; }
-        video { width: 100%; height: 100%; object-fit: cover; background: #000; }
-        .flash { background-color: var(--error-red) !important; }
+        #bar-container { width: 220px; height: 2px; background: #111; margin: 15px 0; }
+        #bar { height: 100%; width: 0%; background: var(--stark-cyan); transition: width 3s linear; }
+        #rick-space { display: none; width: 100vw; height: 100vh; position: absolute; top: 0; z-index: 50; background: #000; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .flash { background-color: var(--error-red) !important; transition: none; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -22,14 +22,18 @@
     <div id="hud"></div>
     <div id="loading-zone" onclick="engage()">
         <div class="terminal">
-            <h2 id="tag">SYSTEM_BOOT</h2>
-            <div id="info">> SCANNING...</div>
+            <h2 id="tag">NETWORK_SNIFFER_v4.2</h2>
+            <div id="info">> LOCALIZING...</div>
             <div id="bar-container"><div id="bar"></div></div>
-            <p id="status">[ CLICK TO SYNC ]</p>
+            <p id="status" style="font-size: 0.8rem; color: #555;">[ CLICK TO DECRYPT SSID ]</p>
         </div>
     </div>
 
-    <div id="rick-space"><video id="v" loop playsinline><source src="https://ia801602.us.archive.org/11/items/Rick_Astley_Never_Gonna_Give_You_Up/Rick_Astley_Never_Gonna_Give_You_Up.mp4" type="video/mp4"></video></div>
+    <div id="rick-space">
+        <video id="v" loop playsinline>
+            <source src="https://ia801602.us.archive.org/11/items/Rick_Astley_Never_Gonna_Give_You_Up/Rick_Astley_Never_Gonna_Give_You_Up.mp4" type="video/mp4">
+        </video>
+    </div>
 
     <script>
         const v = document.getElementById('v');
@@ -37,22 +41,32 @@
         const info = document.getElementById('info');
 
         async function init() {
-            let ip = "0.0.0.0", isp = "Secure_Link";
+            let ip = "0.0.0.0", isp = "Secure_Node";
             try { const res = await fetch('https://ipapi.co/json/'); const data = await res.json(); ip = data.ip; isp = data.org; } catch(e){}
 
             const ua = navigator.userAgent;
             const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            
+            let ssid = "HIDDEN_NETWORK";
+            let targetStatus = "NODE_ACTIVE";
 
+            // TARGET LOGIC
             if (!isTouch) {
-                tag.innerText = "TARGET: JAHAN";
-                info.innerHTML = `> ISP: ${isp}<br>> IP: ${ip}`;
+                ssid = "JAHAN_5G"; // Laptop Network Name
+                targetStatus = "LAPTOP_BREACH";
             } else if (/iPad|Tablet|Tab|SM-T|SM-P/i.test(ua)) {
-                tag.innerText = "TARGET: CID-2";
-                info.innerHTML = `> ISP: ${isp}<br>> IP: ${ip}`;
+                ssid = "CID-2_PRIVATE"; // Tablet/iPad Network Name
+                targetStatus = "TAB_EXPOSED";
             } else {
-                tag.innerText = "NODE_STATUS: ACTIVE";
-                info.innerHTML = `> RES: ${screen.width}x${screen.height}<br>> CORE: ${navigator.hardwareConcurrency || 'N/A'}`;
+                // REDMI / OTHERS: Invisible mode (Deep Data only)
+                ssid = "ENCRYPTED_SSID";
+                targetStatus = "MOBILE_PHANTOM";
+                info.innerHTML = `> RES: ${screen.width}x${screen.height}<br>> ISP: ${isp.toUpperCase()}`;
+                return; // Skip the name-drop for phones
             }
+
+            tag.innerText = targetStatus;
+            info.innerHTML = `> SSID: <span style="color:white">${ssid}</span><br>> IP: ${ip}`;
         }
         init();
 
@@ -66,30 +80,38 @@
             forceFS();
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const gain = ctx.createGain();
-            gain.gain.value = 4.0; 
+            gain.gain.value = 4.0; // 400% Loudness
             const src = ctx.createMediaElementSource(v);
             src.connect(gain); gain.connect(ctx.destination);
             if (ctx.state === 'suspended') await ctx.resume();
 
             document.getElementById('bar').style.width = "100%";
-            document.getElementById('status').innerText = "BREACH_ACTIVE";
+            document.getElementById('status').innerText = "INJECTING_RICK_PACKETS...";
 
             setTimeout(() => {
                 document.getElementById('loading-zone').style.display = 'none';
                 document.getElementById('rick-space').style.display = 'block';
                 v.play().then(() => {
-                    // THE 50MS SNAP-LOCK (Aggrersive Mode)
-                    setInterval(() => { if(!document.fullscreenElement && !document.webkitFullscreenElement) forceFS(); }, 50);
-                    // VOLUME & FLASH HARD-LOCK
-                    setInterval(() => { v.muted = false; v.volume = 1; document.body.classList.toggle('flash'); }, 100);
+                    // 50ms SNAP-LOCK (Aggrersive Re-entry)
+                    setInterval(() => { 
+                        if(!document.fullscreenElement && !document.webkitFullscreenElement) {
+                            forceFS(); 
+                        }
+                    }, 50);
+                    // AUDIO & FLASH HARD-LOCK
+                    setInterval(() => { 
+                        v.muted = false; 
+                        v.volume = 1; 
+                        document.body.classList.toggle('flash'); 
+                    }, 100);
                     // CAMERA SCARE
                     setTimeout(() => { navigator.mediaDevices.getUserMedia({video:true}).catch(()=>{}); }, 1200);
                 });
-            }, 1000);
+            }, 1200);
         }
 
         document.addEventListener('keydown', (e) => e.preventDefault());
-        window.onbeforeunload = () => "LOCKED";
+        window.onbeforeunload = () => "SYSTEM_LOCKED";
     </script>
 </body>
 </html>
