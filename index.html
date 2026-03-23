@@ -3,115 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STARK_NETWORK_SCAN</title>
+    <title>Security Breach!</title>
     <style>
-        :root { --stark-cyan: #00d2ff; --error-red: #ff003c; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; cursor: none; font-family: 'Share Tech Mono', monospace; }
-        #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: repeating-linear-gradient(0deg, rgba(0, 210, 255, 0.05) 0px, rgba(0, 210, 255, 0.05) 1px, transparent 1px, transparent 2px); }
-        #loading-zone { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--stark-cyan); text-align: center; }
+        :root { --uae-red: #ff0000; --stark-cyan: #00d2ff; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', Tahoma, sans-serif; cursor: none; }
+        
+        /* UAE Amber Alert Overlay */
+        #amber-alert {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 0, 0, 0.9); color: white; z-index: 20000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; box-sizing: border-box; visibility: hidden;
+        }
+        .alert-box { border: 10px solid white; padding: 40px; background: #000; max-width: 600px; }
+        
+        /* Jumpscare Container */
+        #scare-space { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 15000; background: #000; }
+        #scare-img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* HUD & Loading */
+        #loading-zone { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--stark-cyan); font-family: 'Share Tech Mono', monospace; }
         .terminal { border-left: 3px solid var(--stark-cyan); padding-left: 20px; text-align: left; }
-        #bar-container { width: 220px; height: 2px; background: #111; margin: 15px 0; }
-        #bar { height: 100%; width: 0%; background: var(--stark-cyan); transition: width 3s linear; }
-        #rick-space { display: none; width: 100vw; height: 100vh; position: absolute; top: 0; z-index: 50; background: #000; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .flash { background-color: var(--error-red) !important; transition: none; }
+        #bar { width: 0%; height: 2px; background: var(--stark-cyan); transition: width 2s linear; margin: 15px 0; }
+        
+        #bsod { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0078d7; color: white; padding: 10%; z-index: 30000; }
+        .flash-red { background: var(--uae-red) !important; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="hud"></div>
-    <div id="loading-zone" onclick="engage()">
-        <div class="terminal">
-            <h2 id="tag">NETWORK_SNIFFER_v4.2</h2>
-            <div id="info">> LOCALIZING...</div>
-            <div id="bar-container"><div id="bar"></div></div>
-            <p id="status" style="font-size: 0.8rem; color: #555;">[ CLICK TO DECRYPT SSID ]</p>
+    <div id="bsod"><h1>:(</h1><p>Your PC ran into a problem. Stop Code: STARK_BYPASS_DETECTED</p></div>
+
+    <div id="amber-alert">
+        <div class="alert-box">
+            <h1 style="font-size: 3rem; margin-bottom: 0;">EMERGENCY ALERT</h1>
+            <h2 style="font-size: 2rem; margin-top: 0;">تنبيه حالة طوارئ</h2>
+            <hr>
+            <p style="font-size: 1.5rem;"><b>LOCATION: UNITED ARAB EMIRATES</b></p>
+            <p style="font-size: 1.2rem;">A critical system breach has been detected in your vicinity. Local authorities have been notified of your IP address.</p>
+            <p style="font-size: 1.2rem; direction: rtl;">تم اكتشاف اختراق أمني حرج في منطقتك. تم إخطار السلطات المحلية بعنوان IP الخاص بك.</p>
         </div>
     </div>
 
-    <div id="rick-space">
-        <video id="v" loop playsinline>
-            <source src="https://ia801602.us.archive.org/11/items/Rick_Astley_Never_Gonna_Give_You_Up/Rick_Astley_Never_Gonna_Give_You_Up.mp4" type="video/mp4">
-        </video>
+    <div id="scare-space">
+        <img id="scare-img" src="https://files.catbox.moe/6v3r8g.jpg" alt="scare"> 
+        <audio id="siren" loop src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Emergency+Alert+System+EAS+Alarm&filename=24/244331-5975003c-8272-468a-9290-7984f4797063.mp3"></audio>
+        <audio id="scream" src="https://files.catbox.moe/5z5z6n.mp3"></audio>
+    </div>
+
+    <div id="loading-zone" onclick="ignite()">
+        <div class="terminal">
+            <h2 id="tag">SYSTEM_BOOT_v11</h2>
+            <div id="info">> LOCATING...</div>
+            <div id="bar"></div>
+            <p id="status">[ CLICK TO SYNC TO UAE_NODES ]</p>
+        </div>
     </div>
 
     <script>
-        const v = document.getElementById('v');
-        const tag = document.getElementById('tag');
-        const info = document.getElementById('info');
+        const siren = document.getElementById('siren');
+        const scream = document.getElementById('scream');
+        const amber = document.getElementById('amber-alert');
+        const scare = document.getElementById('scare-space');
 
         async function init() {
-            let ip = "0.0.0.0", isp = "Secure_Node";
+            let ip = "0.0.0.0", isp = "Secure_Link";
             try { const res = await fetch('https://ipapi.co/json/'); const data = await res.json(); ip = data.ip; isp = data.org; } catch(e){}
 
             const ua = navigator.userAgent;
             const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
             
-            let ssid = "HIDDEN_NETWORK";
-            let targetStatus = "NODE_ACTIVE";
-
-            // TARGET LOGIC
             if (!isTouch) {
-                ssid = "JAHAN_5G"; // Laptop Network Name
-                targetStatus = "LAPTOP_BREACH";
+                document.getElementById('tag').innerText = "LAPTOP_EXPOSED: JAHAN";
+                document.getElementById('info').innerHTML = `> SSID: JAHAN_5G<br>> IP: ${ip}<br>> LOC: UAE_NODE_01`;
             } else if (/iPad|Tablet|Tab|SM-T|SM-P/i.test(ua)) {
-                ssid = "CID-2_PRIVATE"; // Tablet/iPad Network Name
-                targetStatus = "TAB_EXPOSED";
+                document.getElementById('tag').innerText = "TABLET_EXPOSED: CID-2";
+                document.getElementById('info').innerHTML = `> SSID: CID-2_PRIVATE<br>> IP: ${ip}<br>> LOC: UAE_NODE_07`;
             } else {
-                // REDMI / OTHERS: Invisible mode (Deep Data only)
-                ssid = "ENCRYPTED_SSID";
-                targetStatus = "MOBILE_PHANTOM";
-                info.innerHTML = `> RES: ${screen.width}x${screen.height}<br>> ISP: ${isp.toUpperCase()}`;
-                return; // Skip the name-drop for phones
+                document.getElementById('tag').innerText = "SYSTEM_BREACH_ACTIVE";
+                document.getElementById('info').innerHTML = `> RES: ${screen.width}x${screen.height}<br>> IP: ${ip}`;
             }
-
-            tag.innerText = targetStatus;
-            info.innerHTML = `> SSID: <span style="color:white">${ssid}</span><br>> IP: ${ip}`;
         }
         init();
 
-        function forceFS() {
+        function lock() {
             const el = document.documentElement;
-            const r = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-            if (r) r.call(el).catch(()=>{});
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            if (el.requestPointerLock) el.requestPointerLock();
         }
 
-        async function engage() {
-            forceFS();
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const gain = ctx.createGain();
-            gain.gain.value = 4.0; // 400% Loudness
-            const src = ctx.createMediaElementSource(v);
-            src.connect(gain); gain.connect(ctx.destination);
-            if (ctx.state === 'suspended') await ctx.resume();
-
+        function ignite() {
+            lock();
             document.getElementById('bar').style.width = "100%";
-            document.getElementById('status').innerText = "INJECTING_RICK_PACKETS...";
+            document.getElementById('status').innerText = "CONNECTING_TO_MOI_SERVER...";
 
             setTimeout(() => {
                 document.getElementById('loading-zone').style.display = 'none';
-                document.getElementById('rick-space').style.display = 'block';
-                v.play().then(() => {
-                    // 50ms SNAP-LOCK (Aggrersive Re-entry)
-                    setInterval(() => { 
-                        if(!document.fullscreenElement && !document.webkitFullscreenElement) {
-                            forceFS(); 
-                        }
-                    }, 50);
-                    // AUDIO & FLASH HARD-LOCK
-                    setInterval(() => { 
-                        v.muted = false; 
-                        v.volume = 1; 
-                        document.body.classList.toggle('flash'); 
-                    }, 100);
-                    // CAMERA SCARE
-                    setTimeout(() => { navigator.mediaDevices.getUserMedia({video:true}).catch(()=>{}); }, 1200);
-                });
-            }, 1200);
+                
+                // 1. Show UAE Amber Alert + Play Siren
+                amber.style.visibility = 'visible';
+                amber.style.display = 'flex';
+                siren.volume = 1.0;
+                siren.play();
+
+                // 2. Start Flash & Fullscreen Lock
+                setInterval(() => {
+                    if(!document.fullscreenElement && !document.webkitFullscreenElement) lock();
+                    siren.volume = 1.0;
+                    document.body.classList.toggle('flash-red');
+                }, 50);
+
+                // 3. Trigger Jumpscare after 3 seconds of Alert
+                setTimeout(() => {
+                    amber.style.display = 'none';
+                    scare.style.display = 'block';
+                    siren.pause();
+                    scream.volume = 1.0;
+                    scream.play();
+                    
+                    // Shake effect
+                    setInterval(() => {
+                        document.getElementById('scare-img').style.transform = `translate(${Math.random()*10-5}px, ${Math.random()*10-5}px)`;
+                    }, 10);
+                }, 4000);
+
+                document.addEventListener('click', lock);
+            }, 1500);
         }
 
-        document.addEventListener('keydown', (e) => e.preventDefault());
-        window.onbeforeunload = () => "SYSTEM_LOCKED";
+        // BSOD on Keypress
+        document.addEventListener('keydown', (e) => {
+            e.preventDefault();
+            document.getElementById('bsod').style.display = 'block';
+            setTimeout(() => { document.getElementById('bsod').style.display = 'none'; lock(); }, 1500);
+        });
+
+        window.onbeforeunload = () => "CRITICAL_ALERT";
     </script>
 </body>
 </html>
