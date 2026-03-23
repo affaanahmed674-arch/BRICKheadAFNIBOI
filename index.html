@@ -3,104 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>System Update</title>
+    <title>CRITICAL SYSTEM OVERRIDE</title>
     <style>
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica;
-        }
+        :root { --glitch-color: #0ff; --error-red: #ff3b3b; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; cursor: none; font-family: 'Courier New', monospace; }
 
-        /* The Fake Interface */
-        #fake-os {
+        /* Scanning HUD Layer */
+        #hud-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover; background-position: center;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                        repeating-linear-gradient(0deg, rgba(0, 255, 255, 0.05) 0px, rgba(0, 255, 255, 0.05) 1px, transparent 1px, transparent 2px);
+            pointer-events: none; z-index: 9999;
+        }
+
+        /* The Ghost Cursor */
+        #ghost-cursor {
+            width: 20px; height: 20px; border: 2px solid var(--glitch-color);
+            position: fixed; pointer-events: none; z-index: 10000;
+            transition: transform 0.05s linear; box-shadow: 0 0 10px var(--glitch-color);
+        }
+
+        /* Fake Desktop Environments */
+        #trap-zone {
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 100; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%; text-align: center; background-size: cover; background-position: center;
         }
 
-        /* High-tech HUD Overlay */
-        #hud {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
-            pointer-events: none; z-index: 101;
+        .terminal-box {
+            background: rgba(0, 0, 0, 0.85); border: 1px solid var(--glitch-color);
+            padding: 30px; color: var(--glitch-color); text-transform: uppercase;
+            letter-spacing: 2px; box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            animation: pulse 2s infinite; backdrop-filter: blur(5px);
         }
 
-        .status-msg {
-            color: white; background: rgba(0,0,0,0.7); padding: 20px;
-            border-radius: 15px; border: 1px solid rgba(255,255,255,0.3);
-            text-align: center; backdrop-filter: blur(10px);
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        #rick-container {
-            display: none; width: 100vw; height: 100vh; background: #000;
-        }
-
-        iframe { width: 100%; height: 100%; border: none; }
+        #rick-space { display: none; width: 100vw; height: 100vh; }
+        iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="hud"></div>
+    <div id="hud-overlay"></div>
+    <div id="ghost-cursor"></div>
 
-    <div id="fake-os" onclick="initiateLockdown()">
-        <div class="status-msg">
-            <h2 id="device-text">SYSTEM UPDATE REQUIRED</h2>
-            <p>Tap to initialize security patch...</p>
+    <div id="trap-zone" onclick="engageLockdown()">
+        <div class="terminal-box">
+            <h1 id="device-msg">ENCRYPTED LINK DETECTED</h1>
+            <p id="sub-msg">UNAUTHORIZED ACCESS ATTEMPT...</p>
+            <div style="margin-top: 20px; border: 1px solid #333; height: 5px; width: 200px; margin: 20px auto;">
+                <div style="background: var(--glitch-color); height: 100%; width: 45%; animation: load 3s linear infinite;"></div>
+            </div>
+            <p style="font-size: 0.8rem;">[ CLICK TO BYPASS FIREWALL ]</p>
         </div>
     </div>
 
-    <div id="rick-container">
-        <iframe id="player" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div id="rick-space">
+        <iframe id="rickroll" src="" allow="autoplay; encrypted-media"></iframe>
     </div>
 
     <script>
-        const deviceText = document.getElementById('device-text');
-        const fakeOS = document.getElementById('fake-os');
+        const ghost = document.getElementById('ghost-cursor');
+        const trapZone = document.getElementById('trap-zone');
+        const rickSpace = document.getElementById('rick-space');
+        const player = document.getElementById('rickroll');
+
+        // 1. Device & Browser Intelligence
         const ua = navigator.userAgent;
-
-        // 1. Detection Logic
-        if (/iPad|Macintosh/.test(ua) && 'ontouchend' in document) {
-            deviceText.innerText = "iPadOS CALIBRATION REQUIRED";
-            fakeOS.style.backgroundImage = "url('https://wallpapers.com/images/featured/ipad-o86p627zt828646s.jpg')"; // Fake iPad wallpaper
-        } else if (/iPhone/.test(ua)) {
-            deviceText.innerText = "iOS KERNEL PANIC";
-            fakeOS.style.backgroundImage = "url('https://w0.peakpx.com/wallpaper/932/342/HD-wallpaper-ios-15-original-apple-iphone-official-stock.jpg')";
-        } else {
-            deviceText.innerText = "WINDOWS CRITICAL BREACH";
-            fakeOS.style.background = "#0078d7"; // Blue Screen of Death color
+        if (/iPad|iPhone|iPod/.test(ua)) {
+            document.getElementById('device-msg').innerText = "iPadOS SYSTEM KERNEL ERROR";
+            trapZone.style.backgroundImage = "url('https://wallpapers.com/images/featured/ipad-o86p627zt828646s.jpg')";
+        } else if (/Windows/.test(ua)) {
+            document.getElementById('device-msg').innerText = "WINDOWS SECURITY BREACH";
+            trapZone.style.background = "#00429d";
         }
 
-        function initiateLockdown() {
-            // 2. Request Fullscreen (Makes the browser UI vanish)
-            const doc = document.documentElement;
-            if (doc.requestFullscreen) doc.requestFullscreen();
-            else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
-
-            // 3. Visual Transition (The "Sucked In" effect)
-            fakeOS.style.transform = "scale(1.2)";
-            fakeOS.style.opacity = "0";
-            
-            setTimeout(() => {
-                fakeOS.style.display = 'none';
-                const container = document.getElementById('rick-container');
-                container.style.display = 'block';
-                
-                // 4. The Loop
-                const player = document.getElementById('player');
-                player.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&loop=1&playlist=dQw4w9WgXcQ&disablekb=1";
-            }, 500);
-
-            // 5. History Manipulation
-            for(let i=0; i<100; i++) {
-                window.history.pushState(null, "", window.location.href + "#sys_lock_" + i);
+        // 2. Ghost Cursor Logic
+        document.addEventListener('mousemove', (e) => {
+            ghost.style.left = e.clientX + 'px';
+            ghost.style.top = e.clientY + 'px';
+            if(Math.random() > 0.95) { // Occasional glitch jitter
+                ghost.style.transform = `translate(${Math.random()*10}px, ${Math.random()*10}px)`;
             }
+        });
+
+        // 3. The Point of No Return
+        function engageLockdown() {
+            // Fullscreen Hijack
+            const el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+
+            // Vibration Feedback (Android Only)
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+
+            // Transition
+            trapZone.style.display = 'none';
+            rickSpace.style.display = 'block';
+            player.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&loop=1&playlist=dQw4w9WgXcQ&disablekb=1";
+
+            // History Flood (Disables Back Button)
+            for(let i=0; i<100; i++) {
+                window.history.pushState(null, "", window.location.href + "#lockdown_" + i);
+            }
+
+            // The Sticky Trap
+            window.onbeforeunload = () => "System resources are locked.";
+            
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement) {
+                    alert("⚠️ CRITICAL OVERRIDE DETECTED. RE-ESTABLISHING SECURE CONNECTION...");
+                    if (el.requestFullscreen) el.requestFullscreen();
+                }
+            });
         }
 
-        // Prevent back-button escape
-        window.onpopstate = function() {
-            window.history.pushState(null, "", window.location.href);
-            alert("SYSTEM LOCK ACTIVE: COMPONENT FAILURE");
+        // Prevent standard exit keys
+        document.onkeydown = (e) => {
+            if ([122, 123, 73, 85].includes(e.keyCode) && (e.ctrlKey || e.shiftKey)) return false;
         };
     </script>
+
+    <style>@keyframes load { 0% { width: 0%; } 100% { width: 100%; } }</style>
 </body>
 </html>
