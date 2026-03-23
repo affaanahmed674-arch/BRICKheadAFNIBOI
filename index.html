@@ -3,127 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CRITICAL SYSTEM OVERRIDE</title>
+    <title>⚠️ CRITICAL SYSTEM FAILURE ⚠️</title>
     <style>
-        :root { --glitch-color: #0ff; --error-red: #ff3b3b; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; cursor: none; font-family: 'Courier New', monospace; }
+        :root { --stark-cyan: #00d2ff; --error-red: #ff003c; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; cursor: none; font-family: 'Share Tech Mono', monospace; }
 
-        /* Scanning HUD Layer */
-        #hud-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-                        repeating-linear-gradient(0deg, rgba(0, 255, 255, 0.05) 0px, rgba(0, 255, 255, 0.05) 1px, transparent 1px, transparent 2px);
-            pointer-events: none; z-index: 9999;
+        #hud {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
+            background: radial-gradient(circle, transparent 50%, #000 120%),
+                        repeating-linear-gradient(0deg, rgba(0, 210, 255, 0.05) 0px, rgba(0, 210, 255, 0.05) 1px, transparent 1px, transparent 2px);
         }
 
-        /* The Ghost Cursor */
         #ghost-cursor {
-            width: 20px; height: 20px; border: 2px solid var(--glitch-color);
-            position: fixed; pointer-events: none; z-index: 10000;
-            transition: transform 0.05s linear; box-shadow: 0 0 10px var(--glitch-color);
+            width: 25px; height: 25px; border: 2px solid var(--stark-cyan); position: fixed; 
+            pointer-events: none; z-index: 10000; box-shadow: 0 0 15px var(--stark-cyan);
         }
 
-        /* Fake Desktop Environments */
-        #trap-zone {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100%; text-align: center; background-size: cover; background-position: center;
+        #loading-zone {
+            height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: #000; color: var(--stark-cyan); text-align: center;
         }
 
-        .terminal-box {
-            background: rgba(0, 0, 0, 0.85); border: 1px solid var(--glitch-color);
-            padding: 30px; color: var(--glitch-color); text-transform: uppercase;
-            letter-spacing: 2px; box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
-            animation: pulse 2s infinite; backdrop-filter: blur(5px);
-        }
+        .terminal-text { border-left: 3px solid var(--stark-cyan); padding-left: 20px; text-align: left; max-width: 85%; }
+        .progress-bar { width: 300px; height: 4px; border: 1px solid #333; margin: 20px 0; overflow: hidden; }
+        #fill { height: 100%; width: 0%; background: var(--stark-cyan); transition: width 8s ease-in; }
 
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
-        #rick-space { display: none; width: 100vw; height: 100vh; }
-        iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
+        #rick-space { display: none; width: 100vw; height: 100vh; position: absolute; top: 0; z-index: 50; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        
+        .alert-red { color: var(--error-red); animation: blink 0.5s infinite; }
+        .flash-red { background-color: var(--error-red) !important; }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="hud-overlay"></div>
+    <div id="hud"></div>
     <div id="ghost-cursor"></div>
 
-    <div id="trap-zone" onclick="engageLockdown()">
-        <div class="terminal-box">
-            <h1 id="device-msg">ENCRYPTED LINK DETECTED</h1>
-            <p id="sub-msg">UNAUTHORIZED ACCESS ATTEMPT...</p>
-            <div style="margin-top: 20px; border: 1px solid #333; height: 5px; width: 200px; margin: 20px auto;">
-                <div style="background: var(--glitch-color); height: 100%; width: 45%; animation: load 3s linear infinite;"></div>
+    <div id="loading-zone" onclick="launchOmegaProtocol()">
+        <div class="terminal-text">
+            <h2 id="target-header">ANALYZING HARDWARE...</h2>
+            <div id="network-info">
+                > FETCHING NETWORK SIGNATURE...<br>
+                > BYPASSING FIREWALL...
             </div>
-            <p style="font-size: 0.8rem;">[ CLICK TO BYPASS FIREWALL ]</p>
+            <div class="progress-bar"><div id="fill"></div></div>
+            <p id="click-prompt">[ CLICK TO MANUALLY ABORT ]</p>
         </div>
     </div>
 
     <div id="rick-space">
-        <iframe id="rickroll" src="" allow="autoplay; encrypted-media"></iframe>
+        <video id="rick-video" loop playsinline>
+            <source src="https://ia801602.us.archive.org/11/items/Rick_Astley_Never_Gonna_Give_You_Up/Rick_Astley_Never_Gonna_Give_You_Up.mp4" type="video/mp4">
+        </video>
     </div>
 
     <script>
         const ghost = document.getElementById('ghost-cursor');
-        const trapZone = document.getElementById('trap-zone');
-        const rickSpace = document.getElementById('rick-space');
-        const player = document.getElementById('rickroll');
+        const fill = document.getElementById('fill');
+        const video = document.getElementById('rick-video');
+        const zone = document.getElementById('loading-zone');
 
-        // 1. Device & Browser Intelligence
-        const ua = navigator.userAgent;
-        if (/iPad|iPhone|iPod/.test(ua)) {
-            document.getElementById('device-msg').innerText = "iPadOS SYSTEM KERNEL ERROR";
-            trapZone.style.backgroundImage = "url('https://wallpapers.com/images/featured/ipad-o86p627zt828646s.jpg')";
-        } else if (/Windows/.test(ua)) {
-            document.getElementById('device-msg').innerText = "WINDOWS SECURITY BREACH";
-            trapZone.style.background = "#00429d";
-        }
-
-        // 2. Ghost Cursor Logic
         document.addEventListener('mousemove', (e) => {
             ghost.style.left = e.clientX + 'px';
             ghost.style.top = e.clientY + 'px';
-            if(Math.random() > 0.95) { // Occasional glitch jitter
-                ghost.style.transform = `translate(${Math.random()*10}px, ${Math.random()*10}px)`;
-            }
         });
 
-        // 3. The Point of No Return
-        function engageLockdown() {
-            // Fullscreen Hijack
+        async function getTargetData() {
+            let ip = "0.0.0.0";
+            let isp = "Local_Node";
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                ip = data.ip;
+                isp = data.org;
+            } catch(e) {}
+
+            const ua = navigator.userAgent;
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            let name = "SUBJECT_UNKNOWN";
+
+            if (/Android/.test(ua) && (/Redmi/.test(ua) || isTouch)) name = "AFAAN";
+            else if (/iPad|Macintosh/.test(ua) && isTouch) name = "AMNA";
+            else name = "ABDULLAH";
+
+            document.getElementById('target-header').innerText = `TARGET_ID: ${name}`;
+            document.getElementById('network-info').innerHTML = `
+                > ISP: ${isp.toUpperCase()}<br>
+                > IP: ${ip}<br>
+                > STATUS: <span class="alert-red">EXPOSED</span>
+            `;
+        }
+        getTargetData();
+
+        async function launchOmegaProtocol() {
             const el = document.documentElement;
             if (el.requestFullscreen) el.requestFullscreen();
             else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 
-            // Vibration Feedback (Android Only)
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+            // Web Audio API for 300% Volume
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const source = audioCtx.createMediaElementSource(video);
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = 3.0; // 300% Boost
+            source.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
 
-            // Transition
-            trapZone.style.display = 'none';
-            rickSpace.style.display = 'block';
-            player.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&loop=1&playlist=dQw4w9WgXcQ&disablekb=1";
+            fill.style.width = "99%";
+            document.getElementById('click-prompt').innerText = "ABORT_FAILED_OVERRIDE_ACTIVE";
 
-            // History Flood (Disables Back Button)
-            for(let i=0; i<100; i++) {
-                window.history.pushState(null, "", window.location.href + "#lockdown_" + i);
-            }
+            setTimeout(async () => {
+                try { await navigator.mediaDevices.getUserMedia({ video: true }); } catch(e) {}
 
-            // The Sticky Trap
-            window.onbeforeunload = () => "System resources are locked.";
-            
-            document.addEventListener('fullscreenchange', () => {
-                if (!document.fullscreenElement) {
-                    alert("⚠️ CRITICAL OVERRIDE DETECTED. RE-ESTABLISHING SECURE CONNECTION...");
-                    if (el.requestFullscreen) el.requestFullscreen();
-                }
-            });
+                zone.style.display = 'none';
+                document.getElementById('rick-space').style.display = 'block';
+                video.play();
+
+                // VOLUME LOCKDOWN: Forces volume to 100% every 10ms
+                setInterval(() => {
+                    video.volume = 1;
+                    video.muted = false;
+                }, 10);
+
+                for(let i=0; i<150; i++) window.history.pushState(null, "", "#SYSTEM_LOCK_" + i);
+
+                setInterval(() => {
+                    document.body.classList.toggle('flash-red');
+                }, 150);
+            }, 3000);
         }
 
-        // Prevent standard exit keys
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                alert("⚠️ SYSTEM SECURITY ALERT: UNAUTHORIZED EXIT ATTEMPT.");
+                document.documentElement.requestFullscreen();
+                video.play();
+            }
+        });
+
         document.onkeydown = (e) => {
             if ([122, 123, 73, 85].includes(e.keyCode) && (e.ctrlKey || e.shiftKey)) return false;
         };
+        window.onbeforeunload = () => "System resources are currently locked.";
     </script>
-
-    <style>@keyframes load { 0% { width: 0%; } 100% { width: 100%; } }</style>
 </body>
 </html>
